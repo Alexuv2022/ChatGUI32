@@ -3,6 +3,9 @@ package com.example.chatgui32;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -41,14 +44,21 @@ public class HelloController {
                     try {
                         while (true) {
                             String response = is.readUTF();
-                            if (response.contains("# is online")) {
+                            System.out.println(response);
+                            JSONParser jsonParser = new JSONParser();
+                            JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
+                            if (jsonObject.get("users") != null) {
+                                JSONArray onlineUsersJson = (JSONArray) jsonParser.parse(jsonObject.get("users").toString());
                                 userList.clear();
-                                userList.appendText(response.split("#")[0] + "\n");
+                                for (int i = 0; i < onlineUsersJson.size(); i++) {
+                                    userList.appendText(onlineUsersJson.get(i).toString() + "\n");
+                                }
                             } else {
-                                textArea.appendText(response + "\n");
+//                                textArea.appendText(response + "\n");
+                                textArea.appendText(jsonObject.get("msg").toString() + "\n");
                             }
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
